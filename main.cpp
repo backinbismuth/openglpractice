@@ -2,6 +2,7 @@
 #include<GLFW/glfw3.h>
 #include<iostream>
 
+// Shaders below
 const char* vertexShaderSource = "#version 330 core\n"
 "layout (location = 0) in vec3 aPos;\n"
 "void main() {\n"
@@ -18,7 +19,7 @@ void processInput(GLFWwindow* window) { // Processes input
 		glfwSetWindowShouldClose(window, true);
 }
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) { // Sets what happens to the viewport when resized
 	glViewport(0, 0, width, height);
 }
 
@@ -72,7 +73,7 @@ int main() {
 	glAttachShader(shaderProgram, fragmentShader); // Creating a huge shaderprogram for all our shaders
 	glLinkProgram(shaderProgram);
 
-	unsigned int VAO;
+	unsigned int VAO;  // VAO set up, refer to VBO setup for details
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
