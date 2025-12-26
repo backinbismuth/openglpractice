@@ -2,21 +2,7 @@
 #include<GLFW/glfw3.h>
 #include<iostream>
 
-// Shaders below
-const char* vertexShaderSource = "#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"layout (location = 1) in vec3 aColor;\n"
-"out vec3 ourColor	;\n"
-"void main() {\n"
-"   gl_Position = vec4(aPos, 1.0);\n"
-"	ourColor = aColor;}\0";
-
-const char* fragmentShaderSource = "#version 330 core\n"
-"out vec4 FragColor;\n"
-"in vec3 ourColor;\n"
-"void main() {\n"
-"   FragColor = vec4(ourColor, 1.0);}\0";
-
+#include"shader.h"
 
 void processInput(GLFWwindow* window) { // Processes input
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -68,20 +54,7 @@ int main() {
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // Copies vertices into GL_ARRAY_BUFFER
 	// Since the vertices of the triangle does not change in the 3d world, we use STATIC_DRAW. Otherwise, we'd use DYNAMIC_DRAW.
 
-	unsigned int vertexShader; // Shader Logic
-	unsigned int fragmentShader;
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(vertexShader);
-	glCompileShader(fragmentShader);
-
-	unsigned int shaderProgram;
-	shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader); // Creating a huge shaderprogram for all our shaders
-	glLinkProgram(shaderProgram);
+	Shader currentShader("vertShader.vs", "fragShader.fs");
 
 	unsigned int VAO;  // VAO set up, refer to VBO setup for details
 	glGenVertexArrays(1, &VAO);
@@ -108,27 +81,21 @@ int main() {
 		processInput(window);
 
 		// Rendering Commands
-		glClearColor(0.5f, 0.2f, 0.7f, 1.0f);
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-		glUseProgram(shaderProgram);
 
-		float timeValue = glfwGetTime();
-		float colorValue = sin(timeValue) / 2.0f + 0.5f;
-		int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
-		glUniform4f(vertexColorLocation, colorValue, 0.0f, colorValue - 0.1f, 1.0f);
+		currentShader.use();
 
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
-		glBindVertexArray(0);
 
 		// Check events, swap buffers
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 
-	glDeleteVertexArrays(1, &VAO); // Free up memory
+	glDeleteVertexArrays(1, &VAO); // Free up memory when program ends
 	glDeleteBuffers(1, &VBO);
-	glDeleteProgram(shaderProgram);
 
 	glfwTerminate();
 
